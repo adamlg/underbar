@@ -173,7 +173,7 @@
   _.reduce = function(collection, iterator, accumulator) {
     var total = 0;
     var start = 0;
-
+if (Array.isArray(collection)) {
     if (accumulator != null) {
       total += accumulator;
     } else {
@@ -184,6 +184,23 @@
       total = iterator(total,collection[i]);
     };
     return total;
+  
+  } else {  //this is a little messy, but it makes the code work for objects as well as arrays
+    var accFlag = false;
+    if (accumulator != null) {
+      accFlag = true;
+      total = accumulator;
+    };
+    for (var i in collection) {
+      if (!accFlag) {
+        total = collection[i];
+        accFlag = true;
+      } else {
+        total = iterator(total,collection[i]);
+      };
+    };
+    return total;
+  };
 
   };
 
@@ -200,15 +217,36 @@
   };
 
 
+
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
+  _.every = function(collection, iterator) { 
     // TIP: Try re-using reduce() here.
-  };
+    var iterator = iterator || _.identity;
+    if (Object.keys(collection).length==0 || collection.length==0) {
+      return true;
+    };
+    return _.reduce(collection, function(allTrue, item) {
+      if(!allTrue) {
+        return false;
+      };
+      return (iterator(item) ? true : false);
+    }, true);
+};
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var iterator = iterator || _.identity;
+    var confirmationFlag = false;
+    _.every(collection, function(item) {
+      if(iterator(item) || (typeof item == "string")) { 
+        confirmationFlag=true;
+        return;
+        };
+        return true;
+      });
+    return confirmationFlag;
   };
 
 
@@ -231,11 +269,33 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var targetArray = arguments[0];
+    for (var i=1; i<arguments.length; i++) {
+      var sourceArray = arguments[i];
+      var keys = Object.keys(sourceArray);
+      for (var j=0; j<keys.length; j++) {
+        targetArray[keys[j]] = sourceArray[keys[j]];
+      };
+    };
+    return targetArray;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var targetArray = arguments[0];
+    for (var i=1; i<arguments.length; i++) {
+      var sourceArray = arguments[i];
+      var keys = Object.keys(sourceArray);
+      for (var j=0; j<keys.length; j++) {
+        if(targetArray.hasOwnProperty(keys[j])) {
+          continue;
+        } else {
+        targetArray[keys[j]] = sourceArray[keys[j]];
+        };
+      };
+    };
+    return targetArray;
   };
 
 
