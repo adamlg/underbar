@@ -388,7 +388,6 @@ if (Array.isArray(collection)) {
     return input;
   };
 
-
   /**
    * EXTRA CREDIT
    * =================
@@ -400,6 +399,22 @@ if (Array.isArray(collection)) {
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    var results = [];
+    var collection = collection;
+    var functionOrKey = functionOrKey;
+    if(collection[0][functionOrKey]) {
+      for (var i in collection) {
+        var test = collection[i][functionOrKey]();
+        results.push(test);
+      };
+    return results;
+    };
+
+    for (var i in collection) {
+      var test = functionOrKey.apply(collection[i]);
+      results.push(test);
+    };
+    return results;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
